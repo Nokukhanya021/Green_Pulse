@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Pulse — Waste Cat.</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="swrap">
+
+<div id="s8" class="screen visible">
+      <div class="whdr">
+        <div class="back-btn" onclick="goTo(6)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <h2>Log New Waste Entry</h2>
+      </div>
+      <p class="wsub">Select the type of waste you're logging to calculate its carbon impact.</p>
+      <p class="qty-label" style="margin-bottom:12px;">1. Select Category</p>
+      <div class="cat-grid">
+        <div class="cat-card" onclick="selCat(this,'Plastic','♻️',2.0)" id="cat-plastic">
+          <span class="cat-icon">♻️</span>
+          <span class="cat-name">Plastic</span>
+          <span class="cat-co2">2.0 kg CO₂/kg</span>
+        </div>
+        <div class="cat-card" onclick="selCat(this,'Mixed (MSW)','🗑️',1.2)" id="cat-mixed">
+          <span class="cat-icon">🗑️</span>
+          <span class="cat-name">Mixed (MSW)</span>
+          <span class="cat-co2">1.2 kg CO₂/kg</span>
+        </div>
+        <div class="cat-card" onclick="selCat(this,'Organic','🌿',0.6)" id="cat-organic">
+          <span class="cat-icon">🌿</span>
+          <span class="cat-name">Organic</span>
+          <span class="cat-co2">0.6 kg CO₂/kg</span>
+        </div>
+        <div class="cat-card" onclick="selCat(this,'Paper','📄',0.7)" id="cat-paper">
+          <span class="cat-icon">📄</span>
+          <span class="cat-name">Paper</span>
+          <span class="cat-co2">0.7 kg CO₂/kg</span>
+        </div>
+      </div>
+      <button class="cat-next" id="cat-next-btn" onclick="goTo(9)">SET QUANTITY →</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// Re-override after script.js load (script.js defines its own goTo)
+const SCREEN_FILES = {
+  1: 'screen-01-splash.html',
+  2: 'screen-02-login.html',
+  3: 'screen-03-register.html',
+  4: 'screen-04-household.html',
+  5: 'screen-05-carbon-est.html',
+  6: 'screen-06-home.html',
+  7: 'screen-07-tips.html',
+  8: 'screen-08-waste.html',
+  9: 'screen-09-quantity.html',
+  10: 'screen-10-calculations.html',
+  11: 'screen-11-carbon-foot.html',
+  12: 'screen-12-rewards.html',
+  13: 'screen-13-marketplace.html',
+  14: 'screen-14-missions.html',
+  15: 'screen-15-status.html',
+  16: 'screen-16-leaderboard.html',
+  17: 'screen-17-profile.html',
+  18: 'screen-18-account.html',
+  19: 'screen-19-notifications.html',
+  20: 'screen-20-locations.html'
+};
+function goTo(n) { window.location.href = SCREEN_FILES[n]; }
+// Run per-screen init hooks
+document.addEventListener('DOMContentLoaded', () => {
+  const n = 8;
+  try {
+    if (n===5 && typeof updateCarbon==='function') updateCarbon();
+    if ((n===6||n===7) && typeof updateGreeting==='function') { updateGreeting(); if(n===6 && typeof updateSummary==='function') updateSummary(); }
+    if (n>=12 && typeof updateRewards==='function') updateRewards();
+    if (n===9 && typeof prepQtyScreen==='function') prepQtyScreen();
+  } catch(e) { console.warn(e); }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Pulse — Quantity</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .qty-icon-wrap { display:flex; justify-content:center; margin: 18px 0 8px; }
+  .qty-icon-circle {
+    width: 88px; height: 88px; border-radius: 50%;
+    background: #E8F5E9; display:flex; align-items:center; justify-content:center;
+    font-size: 44px;
+  }
+  .qty-cat-title { text-align:center; font-weight:700; letter-spacing:2px; color:#2E7D32; margin: 6px 0 22px; }
+  .qty-section-lbl { font-weight:600; margin: 6px 4px 10px; color:#333; }
+  .qty-weight-display { text-align:center; font-size:34px; font-weight:700; color:#1B5E20; margin: 8px 0 6px; }
+  .qty-weight-display small { font-size:16px; color:#666; font-weight:500; }
+  .qty-slider { width:100%; -webkit-appearance:none; appearance:none; height:6px; border-radius:3px; background:#C8E6C9; outline:none; margin: 6px 0 4px; }
+  .qty-slider::-webkit-slider-thumb { -webkit-appearance:none; appearance:none; width:22px; height:22px; border-radius:50%; background:#2E7D32; cursor:pointer; border:3px solid #fff; box-shadow:0 2px 4px rgba(0,0,0,.2); }
+  .qty-slider::-moz-range-thumb { width:22px; height:22px; border-radius:50%; background:#2E7D32; cursor:pointer; border:3px solid #fff; }
+  .qty-range-labels { display:flex; justify-content:space-between; font-size:12px; color:#888; margin-bottom:18px; }
+  .qty-quick-row { display:flex; gap:10px; margin: 4px 0 22px; }
+  .qty-quick-btn {
+    flex:1; padding:14px 8px; border-radius:12px; border:2px solid #E0E0E0; background:#fff;
+    font-family:inherit; font-size:13px; font-weight:600; color:#555; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:4px; transition:all .2s;
+  }
+  .qty-quick-btn .qb-icon { font-size:20px; }
+  .qty-quick-btn.active { border-color:#2E7D32; background:#E8F5E9; color:#1B5E20; }
+  .qty-calc-btn {
+    width:100%; padding:16px; border-radius:14px; border:none;
+    background:#2E7D32; color:#fff; font-family:inherit; font-weight:700; letter-spacing:1px;
+    font-size:15px; cursor:pointer; margin-top:8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="swrap">
+
+    <div id="s9" class="screen visible">
+      <div class="whdr">
+        <div class="back-btn" onclick="goTo(8)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <h2>Set Quantity</h2>
+      </div>
+
+      <div class="qty-icon-wrap">
+        <div class="qty-icon-circle">♻️</div>
+      </div>
+      <div class="qty-cat-title" id="qty-cat-label">PLASTIC</div>
+
+      <p class="qty-section-lbl">2. Set Quantity</p>
+
+      <div class="qty-weight-display">
+        <span id="qty-weight-val">0.0</span><small> kg</small>
+      </div>
+      <input type="range" min="0" max="10" step="0.1" value="0" class="qty-slider" id="qty-slider">
+      <div class="qty-range-labels"><span>0 kg</span><span>10 kg</span></div>
+
+      <div class="qty-quick-row">
+        <button type="button" class="qty-quick-btn" data-kg="1" onclick="qtyQuick(this,1)">
+          <span class="qb-icon">🛍️</span><span>1 Bag</span>
+        </button>
+        <button type="button" class="qty-quick-btn" data-kg="5" onclick="qtyQuick(this,5)">
+          <span class="qb-icon">🗑️</span><span>Recycling Bin</span>
+        </button>
+      </div>
+
+      <button class="qty-calc-btn" onclick="submitEntry()">CALCULATE IMPACT →</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+const SCREEN_FILES = {
+  1: 'screen-01-splash.html',
+  2: 'screen-02-login.html',
+  3: 'screen-03-register.html',
+  4: 'screen-04-household.html',
+  5: 'screen-05-carbon-est.html',
+  6: 'screen-06-home.html',
+  7: 'screen-07-tips.html',
+  8: 'screen-08-waste.html',
+  9: 'screen-09-quantity.html',
+  10: 'screen-10-calculations.html',
+  11: 'screen-11-carbon-foot.html',
+  12: 'screen-12-rewards.html',
+  13: 'screen-13-marketplace.html',
+  14: 'screen-14-missions.html',
+  15: 'screen-15-status.html',
+  16: 'screen-16-leaderboard.html',
+  17: 'screen-17-profile.html',
+  18: 'screen-18-account.html',
+  19: 'screen-19-notifications.html',
+  20: 'screen-20-locations.html'
+};
+function goTo(n) { window.location.href = SCREEN_FILES[n]; }
+
+function qtyQuick(btn, kg) {
+  document.querySelectorAll('.qty-quick-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const slider = document.getElementById('qty-slider');
+  slider.value = kg;
+  updateQtyWeight(kg);
+}
+
+function updateQtyWeight(kg) {
+  document.getElementById('qty-weight-val').textContent = Number(kg).toFixed(1);
+  if (typeof ST !== 'undefined') {
+    ST.wasteKg = Number(kg);
+    localStorage.setItem("wasteKg", ST.wasteKg);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const slider = document.getElementById('qty-slider');
+  slider.addEventListener('input', e => {
+    document.querySelectorAll('.qty-quick-btn').forEach(b => b.classList.remove('active'));
+    updateQtyWeight(e.target.value);
+  });
+  updateQtyWeight(slider.value);
+
+  // Reflect selected category label from ST if set
+  try {
+    if (typeof ST !== 'undefined' && ST.wasteType) {
+      document.getElementById('qty-cat-label').textContent = ST.wasteType.toUpperCase();
+    }
+  } catch(e) {}
+});
+</script>
+</body>
+</html>

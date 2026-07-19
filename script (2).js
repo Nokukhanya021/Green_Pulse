@@ -1,0 +1,439 @@
+// ── STATE ─────────────────────────────────────────
+const ST = {
+    cur:1,
+    name:'',
+    hh:2,
+    province:'',
+    freq:'weekly',
+
+    wasteType:'',
+    wasteIcon:'',
+    co2Factor:0,
+    wasteKg:0,
+
+    totalCO2:0,
+    totalPts:0,
+    entries:[]
+};
+
+// Load saved waste selection
+const savedType = localStorage.getItem("wasteType");
+if (savedType) ST.wasteType = savedType;
+
+const savedIcon = localStorage.getItem("wasteIcon");
+if (savedIcon) ST.wasteIcon = savedIcon;
+
+const savedFactor = localStorage.getItem("co2Factor");
+if (savedFactor) ST.co2Factor = Number(savedFactor);
+
+const savedKg = localStorage.getItem("wasteKg");
+if (savedKg) ST.wasteKg = Number(savedKg);
+const ORDER = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+
+// CO2 factors (kg CO2 per kg waste) from GreenPulse_Emission_Constants
+const CO2_FACTORS = {
+  'Plastic':      2.0,
+  'Mixed (MSW)':  1.2,
+  'Organic':      0.6,
+  'Paper':        0.7
+};
+
+const PMOD = {
+  'Gauteng':1.0,'Mpumalanga':1.35,'Limpopo':0.95,
+  'KwaZulu-Natal':0.88,'Western Cape':0.78,'Eastern Cape':0.82,
+  'Free State':0.92,'Northern Cape':0.85,'North West':1.10
+};
+const PDESC = {
+  'Gauteng':'Average Highveld grid intensity',
+  'Mpumalanga':'High — major coal belt region',
+  'Limpopo':'Moderate — mixed energy mix',
+  'KwaZulu-Natal':'Below avg — coastal diversification',
+  'Western Cape':'Lowest — renewable-heavy grid',
+  'Eastern Cape':'Below avg — wind corridor',
+  'Free State':'Moderate — agricultural region',
+  'Northern Cape':'Below avg — solar-rich province',
+  'North West':'Above avg — mining &amp; industry'
+};
+
+function calcCO2() {
+  const mod = PMOD[ST.province] || 1.0;
+  return +(0.62 * ST.hh * mod).toFixed(2);
+}
+
+// ── NAVIGATION ────────────────────────────────────
+function goTo(n) {
+  if (n === ST.cur) return;
+  const fwd = ORDER.indexOf(n) > ORDER.indexOf(ST.cur);
+  const from = document.getElementById('s' + ST.cur);
+  const to   = document.getElementById('s' + n);
+
+  from.classList.remove('visible');
+  from.classList.add(fwd ? 'sol' : 'sor');
+  to.classList.add(fwd ? 'sir' : 'sil', 'visible');
+
+  from.addEventListener('animationend', () => from.classList.remove('sol','sor'), {once:true});
+  to.addEventListener('animationend',   () => to.classList.remove('sir','sil'),   {once:true});
+
+  ST.cur = n;
+  document.querySelectorAll('.snav button').forEach((b,i) => b.classList.toggle('active', i+1===n));
+
+  if (n===5)  updateCarbon();
+  if (n===6||n===7) { updateGreeting(); if(n===6) updateSummary(); }
+  if (n>=12)  updateRewards();
+  if (n>=17) {
+    const nm = ST.fullName || ST.name || 'Samantha Jenkins';
+    const setTxt = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    setTxt('acc-initial', nm.charAt(0).toUpperCase());
+    setTxt('acc-name', nm);
+    setTxt('acc-user', nm);
+    setTxt('acc-email', ST.email || 'samantha@greenpulse.app');
+    setTxt('acc-hh', (ST.hh||1) + ' ' + ((ST.hh||1)===1?'person':'people'));
+    setTxt('acc-prov', ST.province || '—');
+    const freqMap = { weekly:'Weekly', biweekly:'Bi-weekly', other:'Other' };
+    setTxt('acc-freq', freqMap[ST.freq] || 'Weekly');
+  }
+  if (n===9)  prepQtyScreen();
+}
+
+// ── REGISTER ─────────────────────────────────────
+function doRegister() {
+  const ne = document.getElementById('reg-name');
+  const ee = document.getElementById('reg-email');
+  const tc = document.getElementById('tc');
+  const tw = document.getElementById('terms-wrap');
+
+  let ok = true;
+  if (!ne.value.trim()) { ne.style.borderColor='#e24b4a'; ne.classList.add('err-shake'); setTimeout(()=>{ne.style.borderColor='';ne.classList.remove('err-shake');},800); ne.focus(); ok=false; }
+  if (!ee.value.trim()) { ee.style.borderColor='#e24b4a'; ee.classList.add('err-shake'); setTimeout(()=>{ee.style.borderColor='';ee.classList.remove('err-shake');},800); if(ok)ee.focus(); ok=false; }
+  if (!tc.checked) { tw.style.borderColor='#e24b4a'; tw.classList.add('err-shake'); setTimeout(()=>{tw.style.borderColor='#c3e8d0';tw.classList.remove('err-shake');},900); ok=false; }
+
+  if (!ok) return;
+ ST.fullName = ne.value.trim();
+ST.email    = ee.value.trim();
+ST.name     = ST.fullName.split(' ')[0];
+
+// Save to localStorage
+localStorage.setItem("fullName", ST.fullName);
+localStorage.setItem("firstName", ST.name);
+localStorage.setItem("email", ST.email);
+
+goTo(4);
+}
+
+// ── HOUSEHOLD ────────────────────────────────────
+function chg(d) {
+    ST.hh = Math.min(12, Math.max(1, ST.hh + d));
+    document.getElementById('hc').textContent = ST.hh;
+
+    // Save the selected household size
+    localStorage.setItem("householdMembers", ST.hh);
+}
+
+// Load saved household size when a page opens
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Household
+    const savedHH = localStorage.getItem("householdMembers");
+    if (savedHH) {
+        ST.hh = Number(savedHH);
+
+        const hc = document.getElementById("hc");
+        if (hc) hc.textContent = ST.hh;
+    }
+
+    // Name
+    const savedFullName = localStorage.getItem("fullName");
+    const savedFirstName = localStorage.getItem("firstName");
+    const savedEmail = localStorage.getItem("email");
+
+    if (savedFullName) ST.fullName = savedFullName;
+    if (savedFirstName) ST.name = savedFirstName;
+    if (savedEmail) ST.email = savedEmail;
+   
+
+    // Load waste data
+    const savedEntries = localStorage.getItem("entries");
+    const savedCO2 = localStorage.getItem("totalCO2");
+    const savedPts = localStorage.getItem("totalPts");
+    const savedKg = localStorage.getItem("wasteKg");
+  
+    if (savedEntries) ST.entries = JSON.parse(savedEntries);
+    if (savedCO2) ST.totalCO2 = Number(savedCO2);
+    if (savedPts) ST.totalPts = Number(savedPts);
+    if (savedKg) ST.wasteKg = Number(savedKg);
+});
+
+// ── PROVINCE ─────────────────────────────────────
+function onProv() {
+  ST.province = document.getElementById('prov').value;
+  const noteEl = document.getElementById('pnote');
+  const txtEl  = document.getElementById('ptxt');
+  if (ST.province) {
+    noteEl.style.display = 'flex';
+    txtEl.innerHTML = '<strong>' + ST.province + '</strong> · ' + (PDESC[ST.province]||'');
+  } else {
+    noteEl.style.display = 'none';
+  }
+}
+
+// ── FREQ TOGGLE ──────────────────────────────────
+function selTog(el, v) {
+  document.querySelectorAll('.to').forEach(t => t.classList.remove('sel'));
+  el.classList.add('sel');
+  ST.freq = v;
+}
+
+// ── CARBON SCREEN ────────────────────────────────
+function updateCarbon() {
+
+  // Load the household size that the user selected
+  const savedHH = localStorage.getItem("householdMembers");
+  if (savedHH) {
+      ST.hh = Number(savedHH);
+  }
+
+  const perPerson = 7.19;
+  const t = perPerson * ST.hh;
+  const circ = 2 * Math.PI * 75; // r=75
+  const pct  = Math.min(Math.max((t - 0.4) / 7.0, 0.04), 0.96);
+  const arc  = circ * 0.06 + pct * circ * 0.78;
+
+  document.getElementById('garc').setAttribute('stroke-dasharray', arc.toFixed(1) + ' ' + circ.toFixed(1));
+  document.getElementById('gnum').textContent = t.toFixed(2);
+
+  const km    = Math.round(t * 1000);
+  const trees = Math.round(t * 36);
+  const diff  = Math.round(Math.abs(7.8 - t) / 7.8 * 100);
+  const dir   = t < 7.8 ? diff + '% below' : diff + '% above';
+
+  document.getElementById('ekm').textContent   = km.toLocaleString('en-ZA') + ' km driving';
+  document.getElementById('etree').textContent = trees + ' trees to offset';
+  document.getElementById('eavg').textContent  = dir + ' SA avg of 7.8 t/yr';
+
+  const prov = ST.province || 'your area';
+  document.getElementById('s5-sub').textContent =
+    'For ' + ST.hh + ' ' + (ST.hh===1?'person':'people') + ' in ' + prov + '.';
+}
+
+// ── LOGIN ─────────────────────────────────────────
+function doLogin() {
+  const ne = document.getElementById('login-name');
+  if (!ne.value.trim()) {
+    ne.style.borderColor='rgba(255,100,100,0.7)';
+    ne.classList.add('err-shake');
+    setTimeout(()=>{ne.style.borderColor='';ne.classList.remove('err-shake');},800);
+    ne.focus(); return;
+  }
+  ST.name = ne.value.trim().split(' ')[0];
+  goTo(6);
+}
+
+// ── GREETING ─────────────────────────────────────
+function updateGreeting() {
+  const h = new Date().getHours();
+  const g = h<12 ? 'Good morning' : h<17 ? 'Good afternoon' : 'Good evening';
+  const display = ST.name ? g + ', ' + ST.name + ' 👋' : g + ' 👋';
+  ['hn6','hn7'].forEach(id => { const el=document.getElementById(id); if(el) el.textContent=display; });
+}
+
+// ── EMISSION SUMMARY ──────────────────────────────
+const CAT_META = {
+  'Plastic':     { icon:'♻️', color:'rgba(61,199,107,0.13)' },
+  'Mixed (MSW)': { icon:'🗑️', color:'rgba(255,193,7,0.11)'  },
+  'Organic':     { icon:'🌿', color:'rgba(100,200,120,0.13)' },
+  'Paper':       { icon:'📄', color:'rgba(100,160,255,0.11)' }
+};
+
+function updateSummary() {
+  const total = ST.totalCO2;
+  const pts   = ST.totalPts;
+  const count = ST.entries.length;
+
+  // arc gauge (max scale ~200 kg)
+  const circ = 2 * Math.PI * 31;
+  const pct  = Math.min(total / 200, 1);
+  const arc  = document.getElementById('sum-arc');
+  if (arc) arc.setAttribute('stroke-dasharray', (circ * pct).toFixed(1) + ' ' + circ.toFixed(1));
+
+  const totalEl = document.getElementById('sum-total');
+  if (totalEl) totalEl.textContent = total.toFixed(2);
+
+  const tagEl = document.getElementById('sum-entries-tag');
+  if (tagEl) tagEl.textContent = count + (count===1?' entry':' entries') + ' logged';
+
+  const ptsEl = document.getElementById('sum-pts-line');
+  if (ptsEl) ptsEl.textContent = '🌱 ' + pts + ' Green Points earned';
+
+  // per-category totals
+  const cats = {};
+  ST.entries.forEach(e => {
+    if (!cats[e.category]) cats[e.category] = 0;
+    cats[e.category] += e.co2;
+  });
+
+  const bdEl = document.getElementById('sum-breakdown');
+  if (bdEl) {
+    if (Object.keys(cats).length === 0) {
+      bdEl.innerHTML = '<div class="sc" style="grid-column:1/-1;text-align:center;padding:20px;"><p style="color:rgba(255,255,255,0.3);font-size:12px;">No entries yet.<br>Tap + to log your first waste entry.</p></div>';
+    } else {
+      bdEl.innerHTML = Object.entries(cats).map(([cat, co2]) => {
+        const m = CAT_META[cat] || { icon:'📦', color:'rgba(255,255,255,0.08)' };
+        return `<div class="sc"><div class="si">${m.icon}</div><p class="sn">${co2.toFixed(1)} kg</p><p class="sl">${cat}</p></div>`;
+      }).join('');
+    }
+  }
+
+  // recent history list
+  const hw = document.getElementById('sum-history-wrap');
+  const hl = document.getElementById('sum-history');
+  if (hw && hl) {
+    if (ST.entries.length === 0) {
+      hw.style.display = 'none';
+    } else {
+      hw.style.display = 'block';
+      const recent = [...ST.entries].reverse().slice(0, 5);
+      hl.innerHTML = recent.map(e => {
+        const m = CAT_META[e.category] || { icon:'📦', color:'rgba(255,255,255,0.08)' };
+        return `<div class="trow">
+          <div class="tico" style="background:${m.color}">${m.icon}</div>
+          <div class="ttxt"><p>${e.category} · ${e.size}</p><span>${e.kg} kg · ${e.co2.toFixed(2)} kg CO₂e</span></div>
+          <span class="tpts">+${e.pts} pts</span>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
+// ── WASTE CATEGORY SELECT ─────────────────────────
+
+function selCat(el, name, icon, factor) {
+  document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  ST.wasteType = name;
+  ST.wasteIcon = icon;
+  ST.co2Factor = factor;
+  // reset quantity
+  ST.wasteKg   = 0;
+
+  // Persist immediately — this screen reloads to screen-9.html next,
+  // which wipes ST from memory and rebuilds it from localStorage.
+  localStorage.setItem("wasteType", ST.wasteType);
+  localStorage.setItem("wasteIcon", ST.wasteIcon);
+  localStorage.setItem("co2Factor", ST.co2Factor);
+  localStorage.setItem("wasteKg", ST.wasteKg);
+
+  document.getElementById('cat-next-btn').classList.add('ready');
+}
+
+
+// ── POPULATE QUANTITY SCREEN ──────────────────────
+function prepQtyScreen() {
+
+    // Display selected waste category
+    document.getElementById("qty-cat-label").textContent =
+        ST.wasteType.toUpperCase();
+
+    // Reset quantity
+    ST.wasteKg = 0;
+
+    // Reset slider
+    const slider = document.getElementById("qty-slider");
+    slider.value = 0;
+
+    // Update display
+    document.getElementById("qty-weight-val").textContent = "0.0";
+
+    // Remove selected quick buttons
+    document.querySelectorAll(".qty-quick-btn").forEach(btn => {
+        btn.classList.remove("active");
+    });
+}
+
+// ── SUBMIT ENTRY ──────────────────────────────────
+function submitEntry() {
+localStorage.setItem("wasteType", ST.wasteType);
+localStorage.setItem("wasteIcon", ST.wasteIcon);
+localStorage.setItem("co2Factor", ST.co2Factor);
+localStorage.setItem("wasteKg", ST.wasteKg);
+
+console.log(ST.wasteType, ST.co2Factor, ST.wasteKg);
+  goTo(10);
+}
+
+// ── SHOW RESULT ───────────────────────────────────
+function showResult() {
+  const co2 = +(ST.wasteKg * ST.co2Factor).toFixed(2);
+  const pts  = Math.max(5, Math.round(co2 * 1.5));
+
+  // save to entries log
+ ST.entries.push({
+    category: ST.wasteType,
+    icon: ST.wasteIcon,
+    factor: ST.co2Factor,
+    size: ST.wasteKg + " kg",
+    kg: ST.wasteKg,
+    co2,
+    pts
+});
+  ST.totalCO2 = +((ST.totalCO2 + co2).toFixed(2));
+  ST.totalPts += pts;
+
+  // Save waste data
+localStorage.setItem("entries", JSON.stringify(ST.entries));
+localStorage.setItem("totalCO2", ST.totalCO2);
+localStorage.setItem("totalPts", ST.totalPts);
+localStorage.setItem("wasteKg", ST.wasteKg);
+  
+  const circ = 2 * Math.PI * 62;
+  const pct  = Math.min(Math.max(co2 / 200, 0.04), 0.96);
+  const arc  = circ * 0.05 + pct * circ * 0.8;
+
+  document.getElementById('res-arc').setAttribute('stroke-dasharray', arc.toFixed(1) + ' ' + circ.toFixed(1));
+ document.getElementById('res-num').textContent = co2.toFixed(2);
+document.getElementById('res-sub').textContent = ST.wasteType + ' logged';
+document.getElementById('res-pts').textContent = '+' + pts + ' Green Points';
+
+document.getElementById('rd-type').textContent = ST.wasteType;
+document.getElementById('rd-qty').textContent = ST.wasteKg.toFixed(1) + ' kg';
+document.getElementById('rd-factor').textContent = ST.co2Factor + ' kg CO₂/kg';
+document.getElementById('rd-total').textContent = co2.toFixed(2) + ' kg CO₂e';
+}
+
+// ── REWARDS SCREENS ──────────────────────────────
+function updateRewards() {
+  const pts  = ST.totalPts;
+  const name = ST.name || 'there';
+  const initial = name.charAt(0).toUpperCase();
+
+  // S12 My Rewards
+  const rwg = document.getElementById('rw-greeting');
+  if (rwg) rwg.textContent = 'Hello, ' + name + '!';
+  const rwp = document.getElementById('rw-pts-display');
+  if (rwp) rwp.textContent = pts.toLocaleString('en-ZA');
+  const rwpb = document.getElementById('rw-pts-bar-val');
+  if (rwpb) rwpb.textContent = pts.toLocaleString('en-ZA') + ' pts';
+
+  // S13 Marketplace
+  const mkp = document.getElementById('mkt-pts');
+  if (mkp) mkp.textContent = 'Points Balance: ' + pts.toLocaleString('en-ZA');
+
+  // S15 Tier status — Bronze < 500, Silver 500–1999, Gold 2000+
+  const tierCur = document.getElementById('tier-pts-cur');
+  if (tierCur) tierCur.textContent = pts + ' pts';
+  const tierFill = document.querySelector('.tier-progress-fill');
+  if (tierFill) {
+    if (pts < 500)       tierFill.style.width = Math.round(pts/500*100) + '%';
+    else if (pts < 2000) tierFill.style.width = Math.round((pts-500)/1500*100) + '%';
+    else                 tierFill.style.width = '100%';
+  }
+
+  // S16 Leaderboard — user row
+  const lbName = document.getElementById('lb-my-name');
+  const lbAva  = document.getElementById('lb-my-avatar');
+  const lbPts  = document.getElementById('lb-my-pts');
+  if (lbName) lbName.textContent = name;
+  if (lbAva)  lbAva.textContent  = initial;
+  if (lbPts)  lbPts.textContent  = pts + ' pts';
+}
+
+// init — no name known yet, greeting will update when navigating to screen 6/7

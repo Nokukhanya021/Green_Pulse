@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Pulse — Carbon Est.</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="swrap">
+
+<div id="s5" class="screen visible">
+      <div class="sb"><span class="d"></span><span class="d"></span><span class="d"></span><span class="d"></span></div>
+      <h2>Baseline Carbon Estimate</h2>
+      <p class="sub" id="s5-sub">Based on your household size &amp; province.</p>
+
+      <div class="gwrap">
+        <svg viewBox="0 0 188 188" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="gg" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#165a27"/>
+              <stop offset="100%" stop-color="#3dc76b"/>
+            </linearGradient>
+          </defs>
+          <circle cx="94" cy="94" r="75" fill="none" stroke="#e8f5ee" stroke-width="13"/>
+          <circle id="garc" cx="94" cy="94" r="75" fill="none"
+            stroke="url(#gg)" stroke-width="13"
+            stroke-dasharray="340 471" stroke-dashoffset="0"
+            stroke-linecap="round" transform="rotate(-90 94 94)"/>
+        </svg>
+        <div class="gcen">
+          <span class="gnum" id="gnum">1.25</span>
+          <span class="gunit">Tonnes CO₂e</span>
+          <span class="glbl">/ Year</span>
+        </div>
+      </div>
+
+
+      <div style="margin-top:auto;width:100%;">
+        <button class="lb lbp" onclick="goTo(8)">LOG NEW WASTE ENTRY →</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// Re-override after script.js load (script.js defines its own goTo)
+const SCREEN_FILES = {
+  1: 'screen-01-splash.html',
+  2: 'screen-02-login.html',
+  3: 'screen-03-register.html',
+  4: 'screen-04-household.html',
+  5: 'screen-05-carbon-est.html',
+  6: 'screen-06-home.html',
+  7: 'screen-07-tips.html',
+  8: 'screen-08-waste.html',
+  9: 'screen-09-quantity.html',
+  10: 'screen-10-calculations.html',
+  11: 'screen-11-carbon-foot.html',
+  12: 'screen-12-rewards.html',
+  13: 'screen-13-marketplace.html',
+  14: 'screen-14-missions.html',
+  15: 'screen-15-status.html',
+  16: 'screen-16-leaderboard.html',
+  17: 'screen-17-profile.html',
+  18: 'screen-18-account.html',
+  19: 'screen-19-notifications.html',
+  20: 'screen-20-locations.html'
+};
+function goTo(n) { window.location.href = SCREEN_FILES[n]; }
+// Run per-screen init hooks
+document.addEventListener('DOMContentLoaded', () => {
+  const n = 5;
+  try {
+    if (n===5 && typeof updateCarbon==='function') updateCarbon();
+    if ((n===6||n===7) && typeof updateGreeting==='function') { updateGreeting(); if(n===6 && typeof updateSummary==='function') updateSummary(); }
+    if (n>=12 && typeof updateRewards==='function') updateRewards();
+    if (n===9 && typeof prepQtyScreen==='function') prepQtyScreen();
+  } catch(e) { console.warn(e); }
+});
+</script>
+</body>
+</html>

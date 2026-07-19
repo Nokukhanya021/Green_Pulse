@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Pulse — Household</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="swrap">
+
+<div id="s4" class="screen visible">
+      <div class="sb"><span class="d"></span><span class="d"></span><span></span><span></span></div>
+      <h2>Setup Your Household</h2>
+      <p class="sub">Personalise your carbon baseline.</p>
+
+      <p class="fl">Household members</p>
+      <div class="cr">
+        <button class="cb" onclick="chg(-1)">−</button>
+        <span class="cv" id="hc">2</span>
+        <button class="cb" onclick="chg(1)">+</button>
+        <span style="font-size:12px;color:#aaa;margin-left:4px;">people</span>
+      </div>
+
+      <p class="fl">Province</p>
+      <select class="li" id="prov" onchange="onProv()" style="margin-top:0;">
+        <option value="">— Select your province —</option>
+        <option>Eastern Cape</option>
+        <option>Free State</option>
+        <option>Gauteng</option>
+        <option>KwaZulu-Natal</option>
+        <option>Limpopo</option>
+        <option>Mpumalanga</option>
+        <option>Northern Cape</option>
+        <option>North West</option>
+        <option>Western Cape</option>
+      </select>
+      <div class="pnote" id="pnote" style="display:none;">
+        <span>📍</span><span id="ptxt"></span>
+      </div>
+
+      <p class="fl">Data collection frequency</p>
+      <div class="tr">
+        <div class="to sel" onclick="selTog(this,'weekly')">Weekly</div>
+        <div class="to"     onclick="selTog(this,'biweekly')">Bi-weekly</div>
+        <div class="to"     onclick="selTog(this,'other')">Other</div>
+      </div>
+
+      <div class="fbtns">
+        <button class="bkbtn" onclick="goTo(3)">BACK</button>
+        <button class="lb lbp" style="flex:2;margin-bottom:0;" onclick="goTo(5)">NEXT</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// Re-override after script.js load (script.js defines its own goTo)
+const SCREEN_FILES = {
+  1: 'screen-01-splash.html',
+  2: 'screen-02-login.html',
+  3: 'screen-03-register.html',
+  4: 'screen-04-household.html',
+  5: 'screen-05-carbon-est.html',
+  6: 'screen-06-home.html',
+  7: 'screen-07-tips.html',
+  8: 'screen-08-waste.html',
+  9: 'screen-09-quantity.html',
+  10: 'screen-10-calculations.html',
+  11: 'screen-11-carbon-foot.html',
+  12: 'screen-12-rewards.html',
+  13: 'screen-13-marketplace.html',
+  14: 'screen-14-missions.html',
+  15: 'screen-15-status.html',
+  16: 'screen-16-leaderboard.html',
+  17: 'screen-17-profile.html',
+  18: 'screen-18-account.html',
+  19: 'screen-19-notifications.html',
+  20: 'screen-20-locations.html'
+};
+function goTo(n) { window.location.href = SCREEN_FILES[n]; }
+// Run per-screen init hooks
+document.addEventListener('DOMContentLoaded', () => {
+  const n = 4;
+  try {
+    if (n===5 && typeof updateCarbon==='function') updateCarbon();
+    if ((n===6||n===7) && typeof updateGreeting==='function') { updateGreeting(); if(n===6 && typeof updateSummary==='function') updateSummary(); }
+    if (n>=12 && typeof updateRewards==='function') updateRewards();
+    if (n===9 && typeof prepQtyScreen==='function') prepQtyScreen();
+  } catch(e) { console.warn(e); }
+});
+</script>
+</body>
+</html>

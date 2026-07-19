@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Pulse — Carbon F.</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="swrap">
+
+<div id="s11" class="screen visible">
+      <div class="res-hdr">
+        <div class="back-btn" onclick="goTo(8)" style="background:#f0faf4;border-color:#c3e8d0;"><svg viewBox="0 0 24 24" style="stroke:var(--g600);"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <h2>Carbon Footprint</h2>
+      </div>
+      <div class="res-done">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Calculation complete · Entry Submitted</span>
+      </div>
+      <div class="res-gauge">
+        <svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#165a27"/><stop offset="100%" stop-color="#3dc76b"/></linearGradient></defs>
+          <circle cx="80" cy="80" r="62" fill="none" stroke="#e8f5ee" stroke-width="11"/>
+          <circle id="res-arc" cx="80" cy="80" r="62" fill="none" stroke="url(#rg)" stroke-width="11"
+            stroke-dasharray="200 390" stroke-dashoffset="0" stroke-linecap="round" transform="rotate(-90 80 80)"/>
+        </svg>
+        <div class="res-gcen">
+          <span class="res-num" id="res-num">3.2</span>
+          <span class="res-unit">kg CO₂e</span>
+        </div>
+      </div>
+      <p class="res-sub" id="res-sub">Reduction logged</p>
+      <div class="res-pts">
+        <span class="res-pts-lbl">Green Points Earned</span>
+        <span class="res-pts-val" id="res-pts">+5 Green Points</span>
+      </div>
+      <div class="res-detail">
+        <div class="res-detail-row"><span>Waste Type</span><span id="rd-type">Plastic</span></div>
+        <div class="res-detail-row"><span>Quantity</span><span id="rd-qty">5 kg (Small)</span></div>
+        <div class="res-detail-row"><span>CO₂ Factor</span><span id="rd-factor">2.0 kg CO₂/kg</span></div>
+        <div class="res-detail-row"><span>Total Emission</span><span id="rd-total">10.0 kg CO₂e</span></div>
+      </div>
+      <div class="res-btns">
+        <button class="res-home" onclick="goTo(6)">BACK TO SUMMARY</button>
+        <button class="res-back" onclick="goTo(8)">LOG ANOTHER ENTRY</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// Re-override after script.js load (script.js defines its own goTo)
+const SCREEN_FILES = {
+  1: 'screen-01-splash.html',
+  2: 'screen-02-login.html',
+  3: 'screen-03-register.html',
+  4: 'screen-04-household.html',
+  5: 'screen-05-carbon-est.html',
+  6: 'screen-06-home.html',
+  7: 'screen-07-tips.html',
+  8: 'screen-08-waste.html',
+  9: 'screen-09-quantity.html',
+  10: 'screen-10-calculations.html',
+  11: 'screen-11-carbon-foot.html',
+  12: 'screen-12-rewards.html',
+  13: 'screen-13-marketplace.html',
+  14: 'screen-14-missions.html',
+  15: 'screen-15-status.html',
+  16: 'screen-16-leaderboard.html',
+  17: 'screen-17-profile.html',
+  18: 'screen-18-account.html',
+  19: 'screen-19-notifications.html',
+  20: 'screen-20-locations.html'
+};
+function goTo(n) { window.location.href = SCREEN_FILES[n]; }
+// Run per-screen init hooks
+document.addEventListener('DOMContentLoaded', () => {
+  const n = 11;
+  try {
+    if (n===5 && typeof updateCarbon==='function') updateCarbon();
+    if ((n===6||n===7) && typeof updateGreeting==='function') { updateGreeting(); if(n===6 && typeof updateSummary==='function') updateSummary(); }
+    if (n>=12 && typeof updateRewards==='function') updateRewards();
+    if (n===9 && typeof prepQtyScreen==='function') prepQtyScreen();
+    if (n===11 && typeof showResult==='function') showResult();
+  } catch(e) { console.warn(e); }
+});
+</script>
+</body>
+</html>
