@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Pulse — Home</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="swrap">
+
+<div id="s6" class="screen visible">
+      <div class="hhdr">
+        <div>
+          <p class="hg">Emission Summary</p>
+          <p class="hn" id="hn6">Good morning 👋</p>
+        </div>
+        <div class="nib">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        </div>
+      </div>
+
+      <!-- Total emission card -->
+      <div class="fpc">
+        <div class="fpr">
+          <svg viewBox="0 0 78 78">
+            <circle cx="39" cy="39" r="31" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="7"/>
+            <circle id="sum-arc" cx="39" cy="39" r="31" fill="none" stroke="url(#fg1)" stroke-width="7"
+              stroke-dasharray="0 195" stroke-dashoffset="-50" stroke-linecap="round"/>
+            <defs><linearGradient id="fg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1a5c27"/><stop offset="100%" stop-color="#3dc76b"/></linearGradient></defs>
+          </svg>
+          <div class="fprc"><span class="fpn" id="sum-total">0</span><span class="fpu">kg CO₂e</span></div>
+        </div>
+        <div>
+          <span class="fptag" id="sum-entries-tag">0 entries logged</span>
+          <p class="fpl">Total CO₂ Logged</p>
+          <p class="fps" id="sum-pts-line">🌱 0 Green Points earned</p>
+        </div>
+      </div>
+
+      <!-- Per-category breakdown -->
+      <div class="hsec">
+        <p class="hst">Breakdown by category</p>
+        <div class="sg" id="sum-breakdown">
+          <div class="sc" style="grid-column:1/-1;text-align:center;padding:20px;">
+            <p style="color:rgba(255,255,255,0.3);font-size:12px;">No entries yet.<br>Tap + to log your first waste entry.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Log history list -->
+      <div class="hsec" id="sum-history-wrap" style="display:none;">
+        <p class="hst">Recent logs</p>
+        <div class="tp" id="sum-history"></div>
+      </div>
+
+      <div class="rbnav">
+        <div class="rni on"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><p>Home</p></div>
+        <div class="rni"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><p>Insights</p></div>
+        <div class="rfab" onclick="goTo(8)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        <div class="rni" onclick="goTo(12)"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5 3.19-6.98 4.8-9.14 4.8"/></svg><p>Rewards</p></div>
+        <div class="rni" onclick="goTo(17)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><p>Profile</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// Re-override after script.js load (script.js defines its own goTo)
+const SCREEN_FILES = {
+  1: 'screen-01-splash.html',
+  2: 'screen-02-login.html',
+  3: 'screen-03-register.html',
+  4: 'screen-04-household.html',
+  5: 'screen-05-carbon-est.html',
+  6: 'screen-06-home.html',
+  7: 'screen-07-tips.html',
+  8: 'screen-08-waste.html',
+  9: 'screen-09-quantity.html',
+  10: 'screen-10-calculations.html',
+  11: 'screen-11-carbon-foot.html',
+  12: 'screen-12-rewards.html',
+  13: 'screen-13-marketplace.html',
+  14: 'screen-14-missions.html',
+  15: 'screen-15-status.html',
+  16: 'screen-16-leaderboard.html',
+  17: 'screen-17-profile.html',
+  18: 'screen-18-account.html',
+  19: 'screen-19-notifications.html',
+  20: 'screen-20-locations.html'
+};
+function goTo(n) { window.location.href = SCREEN_FILES[n]; }
+// Run per-screen init hooks
+document.addEventListener('DOMContentLoaded', () => {
+  const n = 6;
+  try {
+    if (n===5 && typeof updateCarbon==='function') updateCarbon();
+    if ((n===6||n===7) && typeof updateGreeting==='function') { updateGreeting(); if(n===6 && typeof updateSummary==='function') updateSummary(); }
+    if (n>=12 && typeof updateRewards==='function') updateRewards();
+    if (n===9 && typeof prepQtyScreen==='function') prepQtyScreen();
+  } catch(e) { console.warn(e); }
+});
+</script>
+</body>
+</html>
