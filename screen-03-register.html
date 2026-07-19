@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Pulse — Register</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .pass-strength-wrap { margin: -8px 0 12px; }
+  .pass-strength-bar { display:flex; gap:4px; margin-bottom:4px; }
+  .pass-strength-seg { flex:1; height:4px; border-radius:2px; background:#e0e0e0; transition:background .2s; }
+  .pass-strength-seg.on-weak { background:#e24b4a; }
+  .pass-strength-seg.on-medium { background:#f0a83e; }
+  .pass-strength-seg.on-strong { background:#2e7d32; }
+  .pass-strength-label { font-size:11px; color:#888; }
+  .pass-req-list { font-size:11px; color:#aaa; margin:0 0 12px; padding-left:18px; }
+  .pass-req-list li.met { color:#2e7d32; }
+</style>
+</head>
+<body>
+
+
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="swrap">
+
+<div id="s3" class="screen visible">
+      <h2>Account Creation</h2>
+      <p class="sub">Let's set up your profile</p>
+      <input class="li" type="text"  placeholder="Full Name"       id="reg-name">
+      <input class="li" type="email" placeholder="Email Address"   id="reg-email">
+      <input class="li" type="password" placeholder="Password"     id="reg-pass" oninput="checkPasswordStrength()">
+      <div class="pass-strength-wrap">
+        <div class="pass-strength-bar">
+          <div class="pass-strength-seg" id="pass-seg-1"></div>
+          <div class="pass-strength-seg" id="pass-seg-2"></div>
+          <div class="pass-strength-seg" id="pass-seg-3"></div>
+        </div>
+        <span class="pass-strength-label" id="pass-strength-label">Password strength</span>
+        <ul class="pass-req-list" id="pass-req-list">
+          <li id="req-len">At least 8 characters</li>
+          <li id="req-upper">One uppercase letter</li>
+          <li id="req-lower">One lowercase letter</li>
+          <li id="req-num">One number</li>
+          <li id="req-special">One special character</li>
+        </ul>
+      </div>
+      <input class="li" type="password" placeholder="Confirm Password" id="reg-pass-confirm">
+      <div class="tbox" id="terms-wrap">
+        <input type="checkbox" id="tc">
+        <label for="tc">I consent to data collection for carbon footprint calculations, in compliance with <a href="#">POPIA</a>.</label>
+      </div>
+      <div style="margin-top:auto;">
+        <button class="lb lbp" onclick="doRegister()">NEXT</button>
+        <p style="font-size:11px;color:#aaa;text-align:center;">View our <a href="#" style="color:var(--g600);">POPIA Privacy Policy</a></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// Re-override after script.js load (script.js defines its own goTo)
+const SCREEN_FILES = {
+  1: 'screen-01-splash.html',
+  2: 'screen-02-login.html',
+  3: 'screen-03-register.html',
+  4: 'screen-04-household.html',
+  5: 'screen-05-carbon-est.html',
+  6: 'screen-06-home.html',
+  7: 'screen-07-tips.html',
+  8: 'screen-08-waste.html',
+  9: 'screen-09-quantity.html',
+  10: 'screen-10-calculations.html',
+  11: 'screen-11-carbon-foot.html',
+  12: 'screen-12-rewards.html',
+  13: 'screen-13-marketplace.html',
+  14: 'screen-14-missions.html',
+  15: 'screen-15-status.html',
+  16: 'screen-16-leaderboard.html',
+  17: 'screen-17-profile.html',
+  18: 'screen-18-account.html',
+  19: 'screen-19-notifications.html',
+  20: 'screen-20-locations.html'
+};
+function goTo(n) { window.location.href = SCREEN_FILES[n]; }
+// Run per-screen init hooks
+document.addEventListener('DOMContentLoaded', () => {
+  const n = 3;
+  try {
+    if (n===5 && typeof updateCarbon==='function') updateCarbon();
+    if ((n===6||n===7) && typeof updateGreeting==='function') { updateGreeting(); if(n===6 && typeof updateSummary==='function') updateSummary(); }
+    if (n>=12 && typeof updateRewards==='function') updateRewards();
+    if (n===9 && typeof prepQtyScreen==='function') prepQtyScreen();
+  } catch(e) { console.warn(e); }
+});
+</script>
+</body>
+</html>
