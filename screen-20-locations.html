@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Pulse — Locations</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="swrap">
+
+<div id="s20" class="screen visible">
+      <div class="adm-hero">
+        <div class="adm-back" onclick="goTo(17)"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></div>
+        <h2>Locations</h2>
+      </div>
+      <div class="adm-body">
+        <div class="loc-card">
+          <p class="loc-lbl">Current Ward</p>
+          <p class="loc-val" id="loc-ward">Ward 117 · Rosebank</p>
+          <div class="loc-map"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Map view</span></div>
+          <div class="loc-row"><small style="color:#888;font-size:11px;">Auto-detected from your address</small><span class="loc-change" onclick="changeWard()">Change</span></div>
+        </div>
+
+        <div class="loc-card">
+          <p class="loc-lbl">Collection Frequency</p>
+          <div class="loc-freq">
+            <div class="loc-freq-pill" id="loc-freq-weekly" onclick="selectLocFreq(this,'weekly')">Weekly</div>
+            <div class="loc-freq-pill" id="loc-freq-biweekly" onclick="selectLocFreq(this,'biweekly')">Bi-weekly</div>
+            <div class="loc-freq-pill" id="loc-freq-other" onclick="selectLocFreq(this,'other')">Monthly</div>
+          </div>
+          <p style="font-size:11px;color:#888;margin-top:8px;">Next collection: <strong style="color:var(--g700);" id="loc-next-date">Tue 19 May</strong> <span class="loc-change" onclick="changeCollectionDate()" style="margin-left:6px;">Change</span></p>
+        </div>
+
+        <div class="loc-card">
+          <p class="loc-lbl">Suburbs Covered</p>
+          <p class="loc-suburbs">Parkhurst · Rosebank · Hyde Park · Craighall · Saxonwold · Forest Town</p>
+        </div>
+
+        <button class="adm-cta" onclick="saveLocationSettings()">SET COLLECTION DAY</button>
+      </div>
+
+      <!-- Feedback toast -->
+      <div id="loc-toast" style="display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1b1b1b;color:#fff;padding:12px 20px;border-radius:20px;font-size:12px;font-weight:600;z-index:1000;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.3);"></div>
+      <div class="rbnav">
+        <div class="rni" onclick="goTo(6)"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><p>Home</p></div>
+        <div class="rni" onclick="goTo(7)"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><p>Insights</p></div>
+        <div class="rfab" onclick="goTo(8)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        <div class="rni" onclick="goTo(12)"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5 3.19-6.98 4.8-9.14 4.8"/></svg><p>Rewards</p></div>
+        <div class="rni on" onclick="goTo(17)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><p>Profile</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// Re-override after script.js load (script.js defines its own goTo)
+const SCREEN_FILES = {
+  1: 'screen-01-splash.html',
+  2: 'screen-02-login.html',
+  3: 'screen-03-register.html',
+  4: 'screen-04-household.html',
+  5: 'screen-05-carbon-est.html',
+  6: 'screen-06-home.html',
+  7: 'screen-07-tips.html',
+  8: 'screen-08-waste.html',
+  9: 'screen-09-quantity.html',
+  10: 'screen-10-calculations.html',
+  11: 'screen-11-carbon-foot.html',
+  12: 'screen-12-rewards.html',
+  13: 'screen-13-marketplace.html',
+  14: 'screen-14-missions.html',
+  15: 'screen-15-status.html',
+  16: 'screen-16-leaderboard.html',
+  17: 'screen-17-profile.html',
+  18: 'screen-18-account.html',
+  19: 'screen-19-notifications.html',
+  20: 'screen-20-locations.html'
+};
+function goTo(n) { window.location.href = SCREEN_FILES[n]; }
+// Run per-screen init hooks
+document.addEventListener('DOMContentLoaded', () => {
+  const n = 20;
+  try {
+    if (n===5 && typeof updateCarbon==='function') updateCarbon();
+    if ((n===6||n===7) && typeof updateGreeting==='function') { updateGreeting(); if(n===6 && typeof updateSummary==='function') updateSummary(); }
+    if (n>=12 && typeof updateRewards==='function') updateRewards();
+    if (n===9 && typeof prepQtyScreen==='function') prepQtyScreen();
+    if (n===20 && typeof initLocations==='function') initLocations();
+  } catch(e) { console.warn(e); }
+});
+</script>
+</body>
+</html>
