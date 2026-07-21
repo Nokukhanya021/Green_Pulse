@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Pulse — Marketplace</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .mkt-item { cursor:pointer; transition:opacity .2s, transform .1s; position:relative; }
+  .mkt-item:active { transform:scale(0.97); }
+  .mkt-item-badge {
+    position:absolute; top:8px; right:8px;
+    background:#2e7d32; color:#fff; font-size:10px; font-weight:700;
+    padding:2px 8px; border-radius:10px;
+  }
+</style>
+</head>
+<body>
+
+
+
+<div class="phone">
+  <div class="notch"></div>
+  <div class="swrap">
+
+<div id="s13" class="screen visible">
+      <div class="mkt-banner">
+        <h2>Rewards Marketplace</h2>
+        <div class="mkt-pts-pill"><span id="mkt-pts">Points Balance: 0</span></div>
+      </div>
+      <div class="mkt-body">
+        <p class="mkt-sec">Browse Rewards Marketplace</p>
+        <div class="mkt-grid">
+          <div class="mkt-item" id="mkt-item-tree" onclick="redeemItem('mkt-item-tree','Tree Planting',500)">
+            <div class="mkt-item-img green">🌱</div>
+            <div class="mkt-item-info"><p>Tree Planting</p><span class="mkt-item-cost">500 pts</span></div>
+            <span class="mkt-item-badge" id="mkt-item-tree-badge" style="display:none;"></span>
+          </div>
+          <div class="mkt-item" id="mkt-item-voucher" onclick="redeemItem('mkt-item-voucher','Eco Gift Voucher',750)">
+            <div class="mkt-item-img gold">🎁</div>
+            <div class="mkt-item-info"><p>Eco Gift Voucher</p><span class="mkt-item-cost">750 pts</span></div>
+            <span class="mkt-item-badge" id="mkt-item-voucher-badge" style="display:none;"></span>
+          </div>
+          <div class="mkt-item" id="mkt-item-kit" onclick="redeemItem('mkt-item-kit','Recycling Kit',300)">
+            <div class="mkt-item-img green">♻️</div>
+            <div class="mkt-item-info"><p>Recycling Kit</p><span class="mkt-item-cost">300 pts</span></div>
+            <span class="mkt-item-badge" id="mkt-item-kit-badge" style="display:none;"></span>
+          </div>
+          <div class="mkt-item" id="mkt-item-credit" onclick="redeemItem('mkt-item-credit','Municipal Credit',1000)">
+            <div class="mkt-item-img gold">🏛️</div>
+            <div class="mkt-item-info"><p>Municipal Credit</p><span class="mkt-item-cost">1,000 pts</span></div>
+            <span class="mkt-item-badge" id="mkt-item-credit-badge" style="display:none;"></span>
+          </div>
+        </div>
+        <p class="mkt-sec">Special Municipal Rebates</p>
+        <div class="mkt-grid">
+          <div class="mkt-item" id="mkt-item-water" onclick="joinWaitlist('mkt-item-water','Water Rebate')">
+            <div class="mkt-item-img green" style="background:linear-gradient(135deg,#e8f5ee,#adf0c2);">🚰</div>
+            <div class="mkt-item-info"><p>Water Rebate</p><span>Early access</span></div>
+          </div>
+          <div class="mkt-item" id="mkt-item-energy" onclick="joinWaitlist('mkt-item-energy','Energy Discount')">
+            <div class="mkt-item-img gold" style="background:linear-gradient(135deg,#fff3e0,#ffcc80);">⚡</div>
+            <div class="mkt-item-info"><p>Energy Discount</p><span>Early access</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Redemption feedback toast -->
+      <div id="mkt-toast" style="display:none;position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1b1b1b;color:#fff;padding:12px 20px;border-radius:20px;font-size:12px;font-weight:600;z-index:1000;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.3);"></div>
+      <div class="rbnav">
+        <div class="rni" onclick="goTo(6)"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><p>Home</p></div>
+        <div class="rni" onclick="goTo(7)"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg><p>Insights</p></div>
+        <div class="rfab" onclick="goTo(8)"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        <div class="rni on" onclick="goTo(12)"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5 3.19-6.98 4.8-9.14 4.8"/></svg><p>Rewards</p></div>
+        <div class="rni" onclick="goTo(17)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><p>Profile</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// Re-override after script.js load (script.js defines its own goTo)
+const SCREEN_FILES = {
+  1: 'screen-01-splash.html',
+  2: 'screen-02-login.html',
+  3: 'screen-03-register.html',
+  4: 'screen-04-household.html',
+  5: 'screen-05-carbon-est.html',
+  6: 'screen-06-home.html',
+  7: 'screen-07-tips.html',
+  8: 'screen-08-waste.html',
+  9: 'screen-09-quantity.html',
+  10: 'screen-10-calculations.html',
+  11: 'screen-11-carbon-foot.html',
+  12: 'screen-12-rewards.html',
+  13: 'screen-13-marketplace.html',
+  14: 'screen-14-missions.html',
+  15: 'screen-15-status.html',
+  16: 'screen-16-leaderboard.html',
+  17: 'screen-17-profile.html',
+  18: 'screen-18-account.html',
+  19: 'screen-19-notifications.html',
+  20: 'screen-20-locations.html'
+};
+function goTo(n) { window.location.href = SCREEN_FILES[n]; }
+// Run per-screen init hooks
+document.addEventListener('DOMContentLoaded', () => {
+  const n = 13;
+  try {
+    if (n===5 && typeof updateCarbon==='function') updateCarbon();
+    if ((n===6||n===7) && typeof updateGreeting==='function') { updateGreeting(); if(n===6 && typeof updateSummary==='function') updateSummary(); }
+    if (n>=12 && typeof updateRewards==='function') updateRewards();
+    if (n===9 && typeof prepQtyScreen==='function') prepQtyScreen();
+    if (n===13 && typeof initMarketplace==='function') initMarketplace();
+  } catch(e) { console.warn(e); }
+});
+</script>
+</body>
+</html>
