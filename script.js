@@ -806,37 +806,6 @@ function initLocations() {
   if (activeEl) activeEl.classList.add('sel');
 }
 
-// ── COMFORT & PREFERENCES ─────────────────────────
-function openPrefsModal() {
-  const modal = document.getElementById('prefs-modal');
-  if (!modal) return;
 
-  const darkToggle = document.getElementById('pref-dark-toggle');
-  const unitsSel = document.getElementById('pref-units');
-  const langSel = document.getElementById('pref-language');
-
-  const isDark = localStorage.getItem('darkMode') === 'true';
-  if (darkToggle) darkToggle.classList.toggle('off', !isDark);
-  if (unitsSel) unitsSel.value = localStorage.getItem('units') || 'metric';
-  if (langSel) langSel.value = localStorage.getItem('language') || 'en';
-
-  modal.style.display = 'flex';
-}
-
-function closePrefsModal() {
-  const modal = document.getElementById('prefs-modal');
-  if (modal) modal.style.display = 'none';
-}
-
-function togglePrefDark() {
-  const toggle = document.getElementById('pref-dark-toggle');
-  if (!toggle) return;
-  const isOff = toggle.classList.toggle('off');
-  localStorage.setItem('darkMode', (!isOff).toString());
-}
-
-function setPref(key, value) {
-  localStorage.setItem(key, value);
-}
 
 // init — no name known yet, greeting will update when navigating to screen 6/7
